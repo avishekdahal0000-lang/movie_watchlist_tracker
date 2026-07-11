@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign up — Ledger</title>
+
+<link rel="stylesheet" href="signup.css">
+</head>
+<body>
+
+  <div class="form-panel">
+    <h1>Create your account</h1>
+
+    <form>
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" placeholder="Jordan Vale" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="jordan@example.com" required>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="At least 8 characters" required minlength="8">
+        <span class="hint">Use 8+ characters with a mix of letters and numbers.</span>
+      </div>
+
+      <button type="submit" class="submit">Create account</button>
+    </form>
+
+    <p class="already">Already have an account? <a href="#">log in</a></p>
+  </div>
+</div>
+
+</body>
+</html>
