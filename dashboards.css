@@ -1,9 +1,9 @@
 *:root{
-    --bg: #0a0a0b;
+    --bg: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8));;
     --panel: #131315;
     --panel-border: #232326;
-    --gold: #d9b35c;
-    --gold-dim: #8a7442;
+    --gold: #820404;
+    --gold-dim: #eb1616;
     --teal: #5fcf9a;
     --text-hi: #ece9e2;
     --text-mid: #9a968c;
