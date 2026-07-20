@@ -22,11 +22,17 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder=" " required minlength="8">
       </div>
-      <button type="submit" class="submit">
-        <a href="dashboard.html">
-                    sign up</button>
-                </a>
+      <button type="submit" class="submit"> sign up</button>
     </form>
+    <script>
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    // You can add signup validation here
+
+    window.location.href = "dashboard.html";
+});
+</script>
 
     <p class="already">Already have an account? <a href="#">log in</a></p>
   </div>
