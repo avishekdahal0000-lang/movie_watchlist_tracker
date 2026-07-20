@@ -19,12 +19,17 @@
             <form>
             <input type="text" placeholder="Email / Phone / Username" required>
             <input type="password" placeholder="Password" required>
-            <button type="submit" class="submit-btn">
-                <a href="dashboard.html">
-                    Login
-                </a>
-            </button>
+            <button type="submit" class="submit-btn">Login</button>
             </form>
+            <script>
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    // You can add signup validation here
+
+    window.location.href = "dashboard.html";
+});
+</script>
         <div class="row">
             <label class="checkbox"><input type="checkbox" /> Remember me</label>
             <a href="#">Forgot password?</a>
