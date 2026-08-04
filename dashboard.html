@@ -4,46 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Movie Watchlist Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css" />
-  <style>
-    .context-menu {
-      position: fixed;
-      z-index: 9999;
-      min-width: 180px;
-      background: #111;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
-      padding: 8px;
-      display: none;
-    }
-
-    .context-menu button {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: #fff;
-      text-align: left;
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .context-menu button:hover {
-      background: rgba(255,255,255,0.08);
-    }
-
-    .context-menu button.active {
-      background: rgba(255,255,255,0.15);
-    }
-
-    .hint {
-      margin-top: 10px;
-      color: #888;
-      font-size: 12px;
-    }
-  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -64,13 +28,36 @@
           <span>YOUR FILM JOURNAL</span>
         </div>
       </div>
-
-      <div class="stats">
-        <div class="stat"><b id="statLogged">10</b><small>LOGGED</small></div>
-        <div class="stat"><b id="statWatched">7</b><small>WATCHED</small></div>
-        <div class="stat"><b id="statToWatch">3</b><small>TO WATCH</small></div>
-        <div class="stat"><b id="statFav">3</b><small>FAVORITES</small></div>
+      <div class="menu-container">
+        <button class="menu-btn" id="menuToggleBtn">
+          Menu
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <ul class="menu-dropdown" id="menuDropdown">
+          <li>
+            <button class="menu-item" id="randomizeBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+              </svg>
+              Pick Random 🎲
+            </button>
+          </li>
+          <li class="menu-divider"></li>
+          <li>
+            <button class="menu-item logout" id="logoutBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Logout
+            </button>
+          </li>
+        </ul>
       </div>
+    </header>
     <div class="controls">
       <div class="tabs" id="tabs">
         <button class="tab active" data-filter="all">All Films <span class="count">10</span></button>
@@ -78,7 +65,6 @@
         <button class="tab" data-filter="watched">Watched <span class="count">4</span></button>
         <button class="tab" data-filter="favorite">Favorites <span class="count">3</span></button>
       </div>
-
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
@@ -128,6 +114,10 @@
     const searchInput = document.getElementById("searchInput");
     const tabs = document.getElementById("tabs");
     const contextMenu = document.getElementById("contextMenu");
+    const randomizeBtn = document.getElementById("randomizeBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const menuToggleBtn = document.getElementById("menuToggleBtn");
+    const menuDropdown = document.getElementById("menuDropdown");
 
     const state = {
       filter: "all",
@@ -153,11 +143,6 @@
       const watchlist = films.filter(f => f.status === "watchlist").length;
       const favorite = films.filter(f => f.status === "favorite").length;
 
-      document.getElementById("statLogged").textContent = films.length;
-      document.getElementById("statWatched").textContent = watched;
-      document.getElementById("statToWatch").textContent = watchlist;
-      document.getElementById("statFav").textContent = favorite;
-
       document.querySelectorAll(".tab .count")[0].textContent = films.length;
       document.querySelectorAll(".tab .count")[1].textContent = watchlist;
       document.querySelectorAll(".tab .count")[2].textContent = watched;
@@ -172,8 +157,8 @@
       card.innerHTML = `
         <div class="poster ${film.art}">
           <div class="badge ${film.status}">
-            ${badgeIcons[film.status]}
-            ${badgeLabel[film.status]}
+            ${badgeIcons[film.status] || ''}
+            ${badgeLabel[film.status] || ''}
           </div>
         </div>
         <div class="meta">
@@ -211,6 +196,22 @@
       grid.appendChild(fragment);
     }
 
+    function pickRandomFilm() {
+      const availableFilms = getFilteredFilms();
+      if (!availableFilms.length) return;
+
+      document.querySelectorAll(".card.highlighted").forEach(c => c.classList.remove("highlighted"));
+
+      const randomIndex = Math.floor(Math.random() * availableFilms.length);
+      const chosenFilm = availableFilms[randomIndex];
+
+      const cardEl = document.querySelector(`.card[data-id="${chosenFilm.id}"]`);
+      if (cardEl) {
+        cardEl.classList.add("highlighted");
+        cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
     function setFilmStatus(id, status) {
       const film = films.find(f => f.id === id);
       if (!film) return;
@@ -230,16 +231,19 @@
 
       contextMenu.style.left = `${Math.min(x, maxX)}px`;
       contextMenu.style.top = `${Math.min(y, maxY)}px`;
-
-      const current = films.find(f => f.id === filmId)?.status;
-      contextMenu.querySelectorAll("button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.status === current);
-      });
     }
 
     function hideContextMenu() {
       contextMenu.style.display = "none";
       state.selectedFilmId = null;
+    }
+
+    function toggleMenu() {
+      menuDropdown.classList.toggle("show");
+    }
+
+    function closeMenu() {
+      menuDropdown.classList.remove("show");
     }
 
     tabs.addEventListener("click", (e) => {
@@ -257,6 +261,20 @@
       render();
     });
 
+    menuToggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    randomizeBtn.addEventListener("click", () => {
+      pickRandomFilm();
+      closeMenu();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+
     contextMenu.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-status]");
       if (!btn || !state.selectedFilmId) return;
@@ -265,10 +283,14 @@
 
     document.addEventListener("click", (e) => {
       if (!e.target.closest("#contextMenu")) hideContextMenu();
+      if (!e.target.closest(".menu-container")) closeMenu();
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") hideContextMenu();
+      if (e.key === "Escape") {
+        hideContextMenu();
+        closeMenu();
+      }
     });
 
     window.addEventListener("resize", hideContextMenu);
