@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - CINETRACK</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="form-box">
+        <h1>🎬 CINETRACK</h1>
+        <div class="admin-badge">ADMIN PANEL</div>
+        <h2>Administrator Login</h2>
+
+        <form id="adminLoginForm">
+            <input type="text" id="username" placeholder="Admin Username" required>
+            <input type="password" id="password" placeholder="Admin Password" required>
+
+            <button type="submit" class="submit-btn">Admin Login</button>
+        </form>
+
+        <p id="error" style="color:red;margin-top:15px;"></p>
+
+        <div class="switch">
+            <a href="login.html">← Back to User Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("adminLoginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    // Demo credentials
+    if(username === "give up" && password === "whyneedpassword"){
+        window.location.href = "admin-dashboard.html";
+    }else{
+        document.getElementById("error").textContent =
+            "Invalid admin username or password.";
+    }
+});
+</script>
+
+</body>
+</html>
