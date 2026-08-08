@@ -6,7 +6,8 @@
 }
 
 body{
-    background:linear-gradient(135deg,#0f172a,#1e293b,#111827);
+    background:linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)),
+                url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba');
     display:flex;
     justify-content:center;
     align-items:center;
@@ -31,7 +32,7 @@ body{
 }
 
 .form-box h1{
-    color:#e50914;
+    color:#820404;
     font-size:34px;
     margin-bottom:10px;
 }
@@ -57,7 +58,7 @@ input{
 }
 
 input:focus{
-    border-color:#e50914;
+    border-color:#820404;
     outline:none;
     box-shadow:0 0 8px rgba(229,9,20,.3);
 }
@@ -66,7 +67,7 @@ input:focus{
     padding:14px;
     border:none;
     border-radius:8px;
-    background:#e50914;
+    background:#820404;
     color:#fff;
     font-size:17px;
     font-weight:bold;
@@ -75,13 +76,13 @@ input:focus{
 }
 
 .submit-btn:hover{
-    background:#b20710;
+    background:#820404;
     transform:translateY(-2px);
 }
 
 #error{
     margin-top:15px;
-    color:#d10000;
+    color:#820404;
     font-weight:bold;
 }
 
@@ -90,7 +91,7 @@ input:focus{
 }
 
 .switch a{
-    color:#e50914;
+    color:#820404;
     text-decoration:none;
     font-weight:bold;
 }
@@ -101,7 +102,7 @@ input:focus{
 
 .admin-badge{
     display:inline-block;
-    background:#e50914;
+    background:#820404;
     color:#fff;
     padding:6px 15px;
     border-radius:20px;
