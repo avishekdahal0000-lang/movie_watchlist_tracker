@@ -11,8 +11,10 @@
         <div class="form-box">
           <h1>🎬 CINETRACK</h1> <br>
           <form id="loginForm">
-            <input type="text" placeholder="Username" required />
-            <input type="password" placeholder="Password" required />
+            <label for="username">Username</label>
+            <input type="text" id="name" name="name" placeholder="Username" required /><br>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="At least 8 unique characters" required minlength="8" /><br>
             <button type="submit" class="submit-btn">Login</button>
           </form>
           <script>
@@ -25,13 +27,13 @@
           </script>
           <div class="row">
             <label class="checkbox"
-              ><input type="checkbox" /> Remember me</label>
+              ><input type="checkbox" /> Remember me</label><br>
             <a href="#">Forgot password?</a>
           </div>
           <div class="switch">
             Don't have an account? <br />
             <a href="signup.html">Create one</a>
-      
+    
           </div>
           </div>
         </div>
