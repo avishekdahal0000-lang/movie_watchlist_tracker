@@ -8,6 +8,122 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Mobile layout adjustments */
+    @media (max-width: 600px) {
+      body {
+        overflow-x: hidden;
+      }
+
+      .dashboard {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .brand-text h1 {
+        font-size: 1.15rem;
+      }
+
+      .brand-text span {
+        font-size: .58rem;
+      }
+
+      .menu-btn {
+        padding: 8px 10px;
+      }
+
+      .controls {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+      }
+
+      .tab {
+        justify-content: center;
+        min-width: 0;
+        padding: 10px 6px;
+        font-size: .78rem;
+      }
+
+      .search {
+        width: 100%;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .card {
+        min-width: 0;
+      }
+
+      .poster {
+        min-height: 180px;
+      }
+
+      .meta {
+        padding: 14px;
+      }
+
+      .title-row h2 {
+        font-size: 1.05rem;
+      }
+
+      .description-container {
+        max-width: 100%;
+      }
+
+      .desc-hover-overlay {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .action-btn {
+        flex: 1 1 calc(50% - 8px);
+        min-height: 40px;
+      }
+
+      .menu-dropdown {
+        right: 0;
+        max-width: calc(100vw - 32px);
+      }
+
+      .back-to-top {
+        right: 16px;
+        bottom: 16px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .dashboard {
+        padding: 12px;
+      }
+
+      .brand-mark {
+        display: none;
+      }
+
+      .tab {
+        font-size: .7rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -47,7 +163,7 @@
           <li class="menu-divider"></li>
           <li>
             <button class="menu-item logout" id="logoutBtn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="circle" stroke-linejoin="circle">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
                 <line x1="21" y1="12" x2="9" y2="12"/>
@@ -69,7 +185,7 @@
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="circle" stroke-linejoin="circle"/>
         </svg>
         <input id="searchInput" type="text" placeholder="Search title, director, genre..." />
       </div>
@@ -80,7 +196,7 @@
 
   <!-- Back to Top Button -->
   <button id="backToTopBtn" class="back-to-top" title="Back to Top">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="circle" stroke-linejoin="circle">
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
@@ -160,17 +276,6 @@
             ${badgeIcons[film.status] || ''}
             ${badgeLabel[film.status] || ''}
           </div>
-          <div class="hover-overlay">
-            <button type="button" class="action-btn ${film.status === 'watchlist' ? 'active' : ''}" data-status="watchlist">
-              ${badgeIcons.watchlist} Watchlist
-            </button>
-            <button type="button" class="action-btn ${film.status === 'watched' ? 'active' : ''}" data-status="watched">
-              ${badgeIcons.watched} Watched
-            </button>
-            <button type="button" class="action-btn ${film.status === 'favorite' ? 'active' : ''}" data-status="favorite">
-              ${badgeIcons.favorite} Favorite
-            </button>
-          </div>
         </div>
         <div class="meta">
           <div class="title-row">
@@ -182,7 +287,21 @@
           <div class="genre">${film.genre}</div>
           
           <button type="button" class="toggle-desc-btn">Show Description</button>
-          <div class="note hidden">${film.note}</div>
+          
+          <div class="description-container hidden">
+            <div class="note">${film.note}</div>
+            <div class="desc-hover-overlay">
+              <button type="button" class="action-btn ${film.status === 'watchlist' ? 'active' : ''}" data-status="watchlist">
+                ${badgeIcons.watchlist} Watchlist
+              </button>
+              <button type="button" class="action-btn ${film.status === 'watched' ? 'active' : ''}" data-status="watched">
+                ${badgeIcons.watched} Watched
+              </button>
+              <button type="button" class="action-btn ${film.status === 'favorite' ? 'active' : ''}" data-status="favorite">
+                ${badgeIcons.favorite} Favorite
+              </button>
+            </div>
+          </div>
         </div>
       `;
 
@@ -231,8 +350,8 @@
 
       const descBtn = e.target.closest(".toggle-desc-btn");
       if (descBtn) {
-        const noteEl = descBtn.nextElementSibling;
-        const isHidden = noteEl.classList.toggle("hidden");
+        const containerEl = descBtn.nextElementSibling;
+        const isHidden = containerEl.classList.toggle("hidden");
         descBtn.textContent = isHidden ? "Show Description" : "Hide Description";
       }
     });
@@ -297,6 +416,5 @@
 
     render();
   </script>
-  
 </body>
 </html>
