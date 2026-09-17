@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css" />
+</head>
 <body>
   <div class="dashboard">
     <section>
@@ -148,7 +149,7 @@
       document.querySelectorAll(".tab .count")[3].textContent = favorite;
     }
 
-    function createCard(film) {
+function createCard(film) {
       const card = document.createElement("article");
       card.className = "card";
       card.dataset.id = film.id;
@@ -159,6 +160,12 @@
             ${badgeIcons[film.status] || ''}
             ${badgeLabel[film.status] || ''}
           </div>
+          <!-- New hover overlay for buttons -->
+          <div class="poster-actions">
+            <button class="action-btn" data-status="watchlist">Watchlist</button>
+            <button class="action-btn" data-status="watched">Watched</button>
+            <button class="action-btn" data-status="favorite">Favorite</button>
+          </div>
         </div>
         <div class="meta">
           <div class="title-row">
@@ -168,28 +175,17 @@
           <div class="director">${film.director}</div>
           <div class="divider"></div>
           <div class="genre">${film.genre}</div>
-          
-          <button type="button" class="toggle-desc-btn">Show Description</button>
-          
-          <div class="description-container hidden">
+          <!-- Action buttons were removed from here -->
+          <button class="toggle-desc-btn">Show Description</button>
+          <div class="description-container">
             <div class="note">${film.note}</div>
-            <div class="desc-hover-overlay">
-              <button type="button" class="action-btn ${film.status === 'watchlist' ? 'active' : ''}" data-status="watchlist">
-                ${badgeIcons.watchlist} Watchlist
-              </button>
-              <button type="button" class="action-btn ${film.status === 'watched' ? 'active' : ''}" data-status="watched">
-                ${badgeIcons.watched} Watched
-              </button>
-              <button type="button" class="action-btn ${film.status === 'favorite' ? 'active' : ''}" data-status="favorite">
-                ${badgeIcons.favorite} Favorite
-              </button>
-            </div>
           </div>
         </div>
       `;
 
       return card;
     }
+    
 
     function render() {
       updateStats();
