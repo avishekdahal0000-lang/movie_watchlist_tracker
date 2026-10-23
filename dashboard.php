@@ -39,58 +39,6 @@ if (isset($_GET['movie_id']) && isset($_GET['status'])) {
     header("Location: dashboard.php");
     exit;
 }
-
-// Function to fetch real movie poster from OMDb API and cache it in MySQL
-function fetchMoviePoster($title, $year, $pdo, $movieId) {
-    $apiKey = 'b8d3bd34';
-
-    $url = "https://www.omdbapi.com/?t=" . urlencode($title) . "&y=" . (int) $year . "&apikey=" . $apiKey;
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    if ($response) {
-        $data = json_decode($response, true);
-        if (isset($data['Response']) && $data['Response'] === 'True' && !empty($data['Poster']) && $data['Poster'] !== 'N/A') {
-            $posterUrl = $data['Poster'];
-            $updateStmt = $pdo->prepare("UPDATE movies SET poster_url = ? WHERE id = ?");
-            $updateStmt->execute([$posterUrl, $movieId]);
-            return $posterUrl;
-        }
-    }
-
-    return null;
-}
-
-// Fetch movies joined with logged-in user's personal movie status
-try {
-    $stmt = $pdo->prepare("
-        SELECT m.*, COALESCE(ums.status, 'none') AS status
-        FROM movies m
-        LEFT JOIN user_movie_status ums ON m.id = ums.movie_id AND ums.user_id = ?
-        ORDER BY m.id DESC
-    ");
-    $stmt->execute([$userId]);
-    $dbFilms = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Automatically fetch real posters for films missing a poster URL
-    foreach ($dbFilms as &$film) {
-        if (empty($film['poster_url'])) {
-            $poster = fetchMoviePoster($film['title'], $film['year'], $pdo, $film['id']);
-            if ($poster) {
-                $film['poster_url'] = $poster;
-            }
-        }
-    }
-    unset($film);
-} catch (Exception $e) {
-    $dbFilms = [];
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
