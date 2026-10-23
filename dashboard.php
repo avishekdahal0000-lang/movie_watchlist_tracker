@@ -39,6 +39,33 @@ if (isset($_GET['movie_id']) && isset($_GET['status'])) {
     header("Location: dashboard.php");
     exit;
 }
+
+// Function to fetch real movie poster from OMDb API and cache it in MySQL
+function fetchMoviePoster($title, $year, $pdo, $movieId) {
+    $apiKey = 'b8d3bd34';
+
+    $url = "https://www.omdbapi.com/?t=" . urlencode($title) . "&y=" . (int) $year . "&apikey=" . $apiKey;
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    if ($response) {
+        $data = json_decode($response, true);
+        if (isset($data['Response']) && $data['Response'] === 'True' && !empty($data['Poster']) && $data['Poster'] !== 'N/A') {
+            $posterUrl = $data['Poster'];
+            $updateStmt = $pdo->prepare("UPDATE movies SET poster_url = ? WHERE id = ?");
+            $updateStmt->execute([$posterUrl, $movieId]);
+            return $posterUrl;
+        }
+    }
+
+    return null;
+}
+
 // Fetch movies joined with logged-in user's personal movie status
 try {
     $stmt = $pdo->prepare("
@@ -74,6 +101,36 @@ try {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .card:hover .poster-actions,
+    .card:focus-within .poster-actions {
+      display: flex !important;
+      opacity: 1;
+      visibility: visible;
+    }
+    .sort-select {
+      background: #18181b;
+      color: #f4f4f5;
+      border: 1px solid #27272a;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      height: 100%;
+    }
+    .sort-select:hover, .sort-select:focus {
+      border-color: #52525b;
+    }
+    .controls-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -128,12 +185,20 @@ try {
         <button class="tab" data-filter="watched">Watched <span class="count">0</span></button>
         <button class="tab" data-filter="favorite">Favorites <span class="count">0</span></button>
       </div>
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8"/>
-        </svg>
-        <input id="searchInput" type="text" placeholder="Search title, director, genre..." />
+      <div class="controls-right">
+        <select id="sortSelect" class="sort-select">
+          <option value="default">Default (Newest Added)</option>
+          <option value="year-desc">Year: Newest to Oldest</option>
+          <option value="year-asc">Year: Oldest to Newest</option>
+          <option value="title-asc">Title: A to Z</option>
+        </select>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+          <input id="searchInput" type="text" placeholder="Search title, director, genre..." />
+        </div>
       </div>
     </div>
 
@@ -159,21 +224,38 @@ try {
 
     const grid = document.getElementById("grid");
     const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
     const tabs = document.getElementById("tabs");
     const randomizeBtn = document.getElementById("randomizeBtn");
     const menuToggleBtn = document.getElementById("menuToggleBtn");
     const menuDropdown = document.getElementById("menuDropdown");
     const backToTopBtn = document.getElementById("backToTopBtn");
 
-    const state = { filter: "all", query: "" };
+    const state = { filter: "all", query: "", sort: "default" };
 
     function getFilteredFilms() {
       const q = state.query.toLowerCase().trim();
-      return films.filter(f => {
+      let filtered = films.filter(f => {
         const matchesFilter = state.filter === "all" || f.status === state.filter;
         const matchesSearch = !q || [f.title, f.director, f.genre].join(" ").toLowerCase().includes(q);
         return matchesFilter && matchesSearch;
       });
+
+      // Apply sorting logic
+      filtered.sort((a, b) => {
+        if (state.sort === "year-desc") {
+          return parseInt(b.year) - parseInt(a.year);
+        } else if (state.sort === "year-asc") {
+          return parseInt(a.year) - parseInt(b.year);
+        } else if (state.sort === "title-asc") {
+          return a.title.localeCompare(b.title);
+        } else {
+          // Default order (Newest Added / Database ID DESC)
+          return b.id - a.id;
+        }
+      });
+
+      return filtered;
     }
 
     function updateStats() {
@@ -202,6 +284,7 @@ try {
       card.innerHTML = `
         <div class="${posterClass}" ${posterStyle}>
           ${badgeHtml}
+          <div class="poster-bottom-trigger"></div>
           <div class="poster-actions">
             <a href="dashboard.php?movie_id=${film.id}&status=watchlist" class="action-btn">Watchlist</a>
             <a href="dashboard.php?movie_id=${film.id}&status=watched" class="action-btn">Watched</a>
@@ -247,6 +330,11 @@ try {
 
     searchInput.addEventListener("input", (e) => {
       state.query = e.target.value;
+      render();
+    });
+
+    sortSelect.addEventListener("change", (e) => {
+      state.sort = e.target.value;
       render();
     });
 
