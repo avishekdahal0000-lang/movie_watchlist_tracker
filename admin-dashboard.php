@@ -32,6 +32,29 @@ try {
   
   <link rel="stylesheet" href="dashboard.css" />
   <link rel="stylesheet" href="admin.css" />
+  <style>
+    .sort-select {
+      background: #18181b;
+      color: #f4f4f5;
+      border: 1px solid #27272a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .sort-select:hover, .sort-select:focus {
+      border-color: #52525b;
+    }
+    .table-actions-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
   <div class="dashboard">
@@ -101,7 +124,13 @@ try {
       <div class="data-table-container">
         <div class="table-header-action">
           <h2>Manage Catalogue</h2>
-          <div>
+          <div class="table-actions-right">
+            <select id="sortSelect" class="sort-select">
+              <option value="default">Default (Newest Added)</option>
+              <option value="year-desc">Year: Newest to Oldest</option>
+              <option value="year-asc">Year: Oldest to Newest</option>
+              <option value="title-asc">Title: A to Z</option>
+            </select>
             <button class="danger-btn" type="button" id="resetFilmsBtn">Reset</button>
             <button class="primary-btn" type="button" id="openAddModalBtn">+ Add New Film</button>
           </div>
@@ -109,7 +138,7 @@ try {
         <table>
           <thead>
             <tr>
-              <th>ID</th>
+              <th>S.No.</th>
               <th>TITLE</th>
               <th>DIRECTOR</th>
               <th>YEAR</th>
@@ -169,13 +198,28 @@ try {
 
 <script>
   let films = <?php echo json_encode($dbFilms ?: []); ?>;
+  let currentSort = "default";
 
   function renderTable() {
     const tbody = document.getElementById("movieTableBody");
     tbody.innerHTML = "";
     document.getElementById("statMovies").textContent = films.length;
 
-    films.forEach(film => {
+    // Clone array and apply sorting
+    let sortedFilms = [...films];
+    sortedFilms.sort((a, b) => {
+      if (currentSort === "year-desc") {
+        return parseInt(b.year) - parseInt(a.year);
+      } else if (currentSort === "year-asc") {
+        return parseInt(a.year) - parseInt(b.year);
+      } else if (currentSort === "title-asc") {
+        return a.title.localeCompare(b.title);
+      } else {
+        return b.id - a.id; // Default newest added
+      }
+    });
+
+    sortedFilms.forEach(film => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>#${film.id}</td>
@@ -220,6 +264,7 @@ try {
   const addFilmForm = document.getElementById("addFilmForm");
   const modalTitle = document.getElementById("modalTitle");
   const filmIdInput = document.getElementById("filmId");
+  const sortSelect = document.getElementById("sortSelect");
 
   function openAddModal() {
     filmIdInput.value = "";
@@ -252,6 +297,11 @@ try {
   openModalBtn.addEventListener("click", openAddModal);
   closeModalBtn.addEventListener("click", closeModal);
   cancelModalBtn.addEventListener("click", closeModal);
+
+  sortSelect.addEventListener("change", (e) => {
+    currentSort = e.target.value;
+    renderTable();
+  });
 
   addFilmForm.addEventListener("submit", async (e) => {
     e.preventDefault();
